@@ -11,10 +11,11 @@ import {
 } from "./interface";
 import { Logger } from "./logger";
 import { Device } from "./device";
+import { DeviceInterface } from "./device.interface";
 
 export class Server {
-	// private _device = new Device();
-	private _deviceMock = new DeviceMock();
+	private _device: DeviceInterface = new Device();
+	// private _device: DeviceInterface = new DeviceMock();
 	private _httpServer = createServer();
 	private _server = new SocketIoServer(this._httpServer);
 	private _logger = Logger.getLogger();
@@ -33,13 +34,13 @@ export class Server {
 			});
 		});
 
-		this._deviceMock.getObservable().subscribe({
+		this._device.getObservable().subscribe({
 			next: (message: BaseInterface) => {
 				this._handleMessageFromDevice(message);
 			},
 		});
 		this._httpServer.listen(3000);
-		this._deviceMock.start();
+		this._device.start();
 	}
 
 	private _handleMessageFromDevice(message: BaseInterface) {
@@ -53,18 +54,16 @@ export class Server {
 		const { protocolId } = message;
 		switch (protocolId) {
 			case ProtocolId.CONFIG:
-				this._deviceMock.sendConfig(message as Config);
+				this._device.sendConfig(message as Config);
 				break;
 			case ProtocolId.COMMAND_OPEN_VAN:
-				this._deviceMock.sendCommandOpenVan(message as CommandOpenVan);
+				this._device.sendCommandOpenVan(message as CommandOpenVan);
 				break;
 			case ProtocolId.COMMAND_PLAY_AUDIO:
-				this._deviceMock.sendCommandPlayAudio(
-					message as CommandPlayAudio
-				);
+				this._device.sendCommandPlayAudio(message as CommandPlayAudio);
 				break;
 			case ProtocolId.COMMAND_UPDATE_RFID:
-				this._deviceMock.sendCommandUpdateRFID(
+				this._device.sendCommandUpdateRFID(
 					message as CommandUpdateRFID
 				);
 				break;

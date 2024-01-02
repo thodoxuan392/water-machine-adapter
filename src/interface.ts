@@ -11,7 +11,7 @@ export enum ProtocolId {
 	COMMAND_UPDATE_RFID = 0x47,
 	COMMAND_UPDATE_RFID_ACK = 0x48,
 	COMMAND_UPDATE_RFID_RESULT = 0x49,
-	STATUS = 0x78,
+	STATUS = 0x81,
 	RFID_DETECTED = 0xc1,
 }
 
@@ -30,15 +30,17 @@ export type BaseInterface = {
 	machineId: number;
 };
 
+export type BaseResultInterface = BaseInterface & {
+	result: Result;
+};
+
 export type Config = BaseInterface & {
 	maxWaterFowAllowed: number;
 };
 
 export type ConfigAck = BaseInterface;
 
-export type ConfigResult = BaseInterface & {
-	result: Result;
-};
+export type ConfigResult = BaseResultInterface;
 
 export type CommandOpenVan = BaseInterface & {
 	volume: number;
@@ -46,9 +48,7 @@ export type CommandOpenVan = BaseInterface & {
 
 export type CommandOpenVanAck = BaseInterface;
 
-export type CommandOpenVanResult = BaseInterface & {
-	result: Result;
-};
+export type CommandOpenVanResult = BaseResultInterface;
 
 export type CommandPlayAudio = BaseInterface & {
 	audioIndex: number;
@@ -56,17 +56,13 @@ export type CommandPlayAudio = BaseInterface & {
 
 export type CommandPlayAudioAck = BaseInterface;
 
-export type CommandPlayAudioResult = BaseInterface & {
-	result: Result;
-};
+export type CommandPlayAudioResult = BaseResultInterface;
 
 export type CommandUpdateRFID = BaseInterface & RFID;
 
 export type CommandUpdateRFIDAck = BaseInterface;
 
-export type CommandUpdateRFIDResult = BaseInterface & {
-	result: Result;
-};
+export type CommandUpdateRFIDResult = BaseResultInterface;
 
 export type Status = BaseInterface & {
 	placedPositionStatus: boolean;
@@ -90,3 +86,6 @@ export type RFID = {
 	issueDate: number[];
 	expireDate: number[];
 };
+
+export const START_BYTE = 0x78;
+export const STOP_BYTE = 0x79;

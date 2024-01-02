@@ -61,8 +61,14 @@ function sendCommandUpdateRFID() {
 	clientSocket.emit("a2c", command);
 }
 
-setTimeout(() => {
-	sendCommandOpenVan();
+// setInterval(() => {
+// 	sendCommandOpenVan();
+// }, 5000);
+
+// setInterval(() => {
+// 	sendCommandPlayAudio();
+// }, 5000);
+
+setInterval(() => {
+	sendCommandUpdateRFID();
 }, 5000);
-// sendCommandPlayAudio();
-// sendCommandUpdateRFID();
