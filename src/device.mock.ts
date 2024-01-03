@@ -123,7 +123,7 @@ export class DeviceMock implements DeviceInterface {
 		// Timer to send Status
 		this._statusTimer = setInterval(() => {
 			this.sendStatus();
-		}, 500);
+		}, 1000);
 		// Timer to trigger rfid detected event
 		this._rfidDetectedTimer = setInterval(() => {
 			this.sendRFIDDetected();
