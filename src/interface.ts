@@ -5,12 +5,15 @@ export enum ProtocolId {
 	COMMAND_OPEN_VAN = 0x41,
 	COMMAND_OPEN_VAN_ACK = 0x42,
 	COMMAND_OPEN_VAN_RESULT = 0x43,
-	COMMAND_PLAY_AUDIO = 0x44,
-	COMMAND_PLAY_AUDIO_ACK = 0x45,
-	COMMAND_PLAY_AUDIO_RESULT = 0x46,
-	COMMAND_UPDATE_RFID = 0x47,
-	COMMAND_UPDATE_RFID_ACK = 0x48,
-	COMMAND_UPDATE_RFID_RESULT = 0x49,
+	COMMAND_CANCEL_OPEN_VAN = 0x44,
+	COMMAND_CANCEL_OPEN_VAN_ACK = 0x45,
+	COMMAND_CANCEL_OPEN_VAN_RESULT = 0x46,
+	COMMAND_PLAY_AUDIO = 0x51,
+	COMMAND_PLAY_AUDIO_ACK = 0x52,
+	COMMAND_PLAY_AUDIO_RESULT = 0x53,
+	COMMAND_UPDATE_RFID = 0x61,
+	COMMAND_UPDATE_RFID_ACK = 0x62,
+	COMMAND_UPDATE_RFID_RESULT = 0x63,
 	STATUS = 0x81,
 	RFID_DETECTED = 0xc1,
 }
@@ -49,6 +52,12 @@ export type CommandOpenVan = BaseInterface & {
 export type CommandOpenVanAck = BaseInterface;
 
 export type CommandOpenVanResult = BaseResultInterface;
+
+export type CommandCancelOpenVan = BaseInterface;
+
+export type CommandCancelOpenVanAck = BaseInterface;
+
+export type CommandCancelOpenVanResult = BaseResultInterface;
 
 export type CommandPlayAudio = BaseInterface & {
 	audioIndex: number;

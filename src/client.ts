@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
 import {
 	BaseInterface,
+	CommandCancelOpenVan,
 	CommandOpenVan,
 	CommandPlayAudio,
 	CommandUpdateRFID,
@@ -39,6 +40,14 @@ function sendCommandOpenVan() {
 	clientSocket.emit("a2c", command);
 }
 
+function sendCommandCancelOpenVan() {
+	const command: CommandCancelOpenVan = {
+		machineId,
+		protocolId: ProtocolId.COMMAND_CANCEL_OPEN_VAN,
+	};
+	clientSocket.emit("a2c", command);
+}
+
 function sendCommandPlayAudio() {
 	const command: CommandPlayAudio = {
 		machineId,
@@ -65,10 +74,14 @@ function sendCommandUpdateRFID() {
 // 	sendCommandOpenVan();
 // }, 5000);
 
+setInterval(() => {
+	sendCommandCancelOpenVan();
+}, 5000);
+
 // setInterval(() => {
 // 	sendCommandPlayAudio();
 // }, 5000);
 
-setInterval(() => {
-	sendCommandUpdateRFID();
-}, 5000);
+// setInterval(() => {
+// 	sendCommandUpdateRFID();
+// }, 5000);

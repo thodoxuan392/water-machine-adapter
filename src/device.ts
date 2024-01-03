@@ -3,6 +3,7 @@ import { DeviceInterface } from "./device.interface";
 import {
 	BaseInterface,
 	BaseResultInterface,
+	CommandCancelOpenVan,
 	CommandOpenVan,
 	CommandPlayAudio,
 	CommandUpdateRFID,
@@ -58,10 +59,10 @@ export class Device implements DeviceInterface {
 			});
 			this._port.on("readable", () => {
 				this._buffer = Buffer.concat([this._buffer, this._port.read()]);
+				this._logger.info(this._buffer);
 				while (this._buffer.length > 0) {
 					const { success, cutLen } =
 						this._handleReadBufferFromDevice(this._buffer);
-					console.log(`Success ${success}, cutLen: ${cutLen}`);
 					if (!success) {
 						// Handle read buffer from device failed -> Check buffer is too big
 						if (this._buffer.length > this._RX_BUFFER_MAX_SIZE) {
@@ -74,7 +75,6 @@ export class Device implements DeviceInterface {
 							cutLen,
 							this._buffer.length
 						);
-						this._logger.info(this._buffer);
 					}
 				}
 			});
@@ -93,7 +93,24 @@ export class Device implements DeviceInterface {
 		data.push(checksum);
 		data.push(STOP_BYTE);
 		this._logger.info(data);
-		if (this._port.open) {
+		if (this._port?.open) {
+			this._port.write(Buffer.from(data));
+		}
+	}
+
+	public async sendCommandCancelOpenVan(
+		command: CommandCancelOpenVan
+	): Promise<void> {
+		const data = [];
+		data.push(START_BYTE);
+		data.push(command.protocolId);
+		data.push(1);
+		data.push(command.machineId);
+		const checksum = calculateChecksum(data.slice(3, data.length));
+		data.push(checksum);
+		data.push(STOP_BYTE);
+		this._logger.info(data);
+		if (this._port?.open) {
 			this._port.write(Buffer.from(data));
 		}
 	}
@@ -110,7 +127,7 @@ export class Device implements DeviceInterface {
 		const checksum = calculateChecksum(data.slice(3, data.length));
 		data.push(checksum);
 		data.push(STOP_BYTE);
-		if (this._port.open) {
+		if (this._port?.open) {
 			this._port.write(Buffer.from(data));
 		}
 	}
@@ -138,7 +155,7 @@ export class Device implements DeviceInterface {
 		const checksum = calculateChecksum(data.slice(3, data.length));
 		data.push(checksum);
 		data.push(STOP_BYTE);
-		if (this._port.open) {
+		if (this._port?.open) {
 			this._port.write(Buffer.from(data));
 		}
 	}
@@ -153,7 +170,7 @@ export class Device implements DeviceInterface {
 		const checksum = calculateChecksum(data.slice(3, data.length));
 		data.push(checksum);
 		data.push(STOP_BYTE);
-		if (this._port.open) {
+		if (this._port?.open) {
 			this._port.write(Buffer.from(data));
 		}
 	}
@@ -193,9 +210,18 @@ export class Device implements DeviceInterface {
 			return { success: false, cutLen: 0 };
 		}
 
+		const stopByte = buffer.at(4 + data_len);
+		if (stopByte !== STOP_BYTE) {
+			this._logger.error(
+				`Stop byte ${stopByte} is not valid, expected ${STOP_BYTE}`
+			);
+			return { success: false, cutLen: 0 };
+		}
+
 		switch (protocolId) {
 			case ProtocolId.CONFIG_ACK:
 			case ProtocolId.COMMAND_OPEN_VAN_ACK:
+			case ProtocolId.COMMAND_CANCEL_OPEN_VAN_ACK:
 			case ProtocolId.COMMAND_PLAY_AUDIO_ACK:
 			case ProtocolId.COMMAND_UPDATE_RFID_ACK: {
 				const machineId = buffer.at(3);
@@ -209,6 +235,7 @@ export class Device implements DeviceInterface {
 			}
 			case ProtocolId.CONFIG_RESULT:
 			case ProtocolId.COMMAND_OPEN_VAN_RESULT:
+			case ProtocolId.COMMAND_CANCEL_OPEN_VAN_RESULT:
 			case ProtocolId.COMMAND_PLAY_AUDIO_RESULT:
 			case ProtocolId.COMMAND_UPDATE_RFID_RESULT: {
 				const machineId = buffer.at(3);
@@ -243,7 +270,6 @@ export class Device implements DeviceInterface {
 						soundError: Boolean((error >> 3) & 0x01),
 					},
 				};
-				this._logger.info(`Status message ${JSON.stringify(status)}`);
 				cutLen = 9 + 2; // 1 for checksum , 1 for stopbyte
 				this.sendBack(status);
 				break;

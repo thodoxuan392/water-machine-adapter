@@ -2,6 +2,9 @@ import { Observable, Subject } from "rxjs";
 import { DeviceInterface } from "./device.interface";
 import {
 	BaseInterface,
+	CommandCancelOpenVan,
+	CommandCancelOpenVanAck,
+	CommandCancelOpenVanResult,
 	CommandOpenVan,
 	CommandOpenVanAck,
 	CommandOpenVanResult,
@@ -174,6 +177,31 @@ export class DeviceMock implements DeviceInterface {
 			};
 			this.sendBack(result);
 		}, timeToOpenVANInSecond);
+	}
+
+	public async sendCommandCancelOpenVan(
+		command: CommandCancelOpenVan
+	): Promise<void> {
+		const { machineId } = command;
+		const ack: CommandCancelOpenVanAck = {
+			protocolId: ProtocolId.COMMAND_CANCEL_OPEN_VAN_ACK,
+			machineId,
+		};
+		this.sendBack(ack);
+
+		// Cancel Open VAN
+		const machine = this._machine.get(machineId);
+		machine.solenoid_status = false;
+		machine.water_flow_status = 0;
+
+		setTimeout(() => {
+			const result: CommandCancelOpenVanResult = {
+				protocolId: ProtocolId.COMMAND_CANCEL_OPEN_VAN_RESULT,
+				machineId,
+				result: Result.RESULT_SUCCESS,
+			};
+			this.sendBack(result);
+		}, 1000);
 	}
 
 	public async sendCommandPlayAudio(

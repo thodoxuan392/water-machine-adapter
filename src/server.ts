@@ -3,6 +3,7 @@ import { Server as SocketIoServer } from "socket.io";
 import { createServer } from "http";
 import {
 	BaseInterface,
+	CommandCancelOpenVan,
 	CommandOpenVan,
 	CommandPlayAudio,
 	CommandUpdateRFID,
@@ -58,6 +59,11 @@ export class Server {
 				break;
 			case ProtocolId.COMMAND_OPEN_VAN:
 				this._device.sendCommandOpenVan(message as CommandOpenVan);
+				break;
+			case ProtocolId.COMMAND_CANCEL_OPEN_VAN:
+				this._device.sendCommandCancelOpenVan(
+					message as CommandCancelOpenVan
+				);
 				break;
 			case ProtocolId.COMMAND_PLAY_AUDIO:
 				this._device.sendCommandPlayAudio(message as CommandPlayAudio);
