@@ -138,12 +138,14 @@ export class Device implements DeviceInterface {
 		const data = [];
 		data.push(START_BYTE);
 		data.push(command.protocolId);
-		data.push(command.rfidLen + 10);
+		data.push(command.rfidLen + 12);
 		data.push(command.machineId);
 		data.push(command.rfidLen);
 		command.rfid.forEach((value) => {
 			data.push(value);
 		});
+		data.push((command.money >> 24) & 0xff);
+		data.push((command.money >> 16) & 0xff);
 		data.push((command.money >> 8) & 0xff);
 		data.push(command.money & 0xff);
 		data.push(command.issueDate[0]);
@@ -155,6 +157,7 @@ export class Device implements DeviceInterface {
 		const checksum = calculateChecksum(data.slice(3, data.length));
 		data.push(checksum);
 		data.push(STOP_BYTE);
+		this._logger.info(data);
 		if (this._port?.open) {
 			this._port.write(Buffer.from(data));
 		}
@@ -282,16 +285,19 @@ export class Device implements DeviceInterface {
 					rfid.push(buffer.at(5 + index));
 				}
 				const money =
-					(buffer.at(5 + rfidLen) << 8) | buffer.at(6 + rfidLen);
+					(buffer.at(5 + rfidLen) << 24) |
+					(buffer.at(6 + rfidLen) << 16) |
+					(buffer.at(7 + rfidLen) << 8) |
+					buffer.at(8 + rfidLen);
 				const issueDate = [
-					buffer.at(7 + rfidLen),
-					buffer.at(8 + rfidLen),
 					buffer.at(9 + rfidLen),
-				];
-				const expireDate = [
 					buffer.at(10 + rfidLen),
 					buffer.at(11 + rfidLen),
+				];
+				const expireDate = [
 					buffer.at(12 + rfidLen),
+					buffer.at(13 + rfidLen),
+					buffer.at(14 + rfidLen),
 				];
 				const rfidMsg: RFIDDetected = {
 					machineId,
@@ -302,7 +308,7 @@ export class Device implements DeviceInterface {
 					issueDate,
 					expireDate,
 				};
-				cutLen = 13 + rfidLen + 2; // 1 for checksum , 1 for stop byte
+				cutLen = 15 + rfidLen + 2; // 1 for checksum , 1 for stop byte
 				this.sendBack(rfidMsg);
 				break;
 			}

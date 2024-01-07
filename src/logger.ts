@@ -1,24 +1,34 @@
 import winston = require("winston");
+import 'winston-daily-rotate-file';
 
 export class Logger {
 	static getLogger(): winston.Logger {
 		return winston.createLogger({
 			level: "info",
 			format: winston.format.combine(
-				winston.format.json(),
-				winston.format.colorize()
+				winston.format.colorize({
+					all:true
+				}),
+				winston.format.label({
+					label:'[Water-Machine]'
+				}),
+				winston.format.timestamp({
+					format:"YY-MM-DD HH:mm:ss"
+				}),
+				winston.format.printf(
+					info => ` ${info.label}  ${info.timestamp}  ${info.level} : ${info.message}`
+				)
 			),
-			defaultMeta: { service: "Water-Machine" },
 			transports: [
 				new winston.transports.Console(),
-				new winston.transports.File({
-					filename: "log/info.log",
-					level: "error",
-				}),
-				new winston.transports.File({
-					filename: "log/error.log",
-					level: "error",
-				}),
+				new winston.transports.DailyRotateFile({
+					filename: 'log/%DATE%.log',
+					datePattern: 'YYYY-MM-DD',
+					zippedArchive: false,
+					maxSize: '20m',
+					maxFiles: '14d',
+					
+				})
 			],
 		});
 	}

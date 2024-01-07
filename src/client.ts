@@ -61,11 +61,11 @@ function sendCommandUpdateRFID() {
 	const command: CommandUpdateRFID = {
 		machineId,
 		protocolId: ProtocolId.COMMAND_UPDATE_RFID,
-		rfid: [1, 2, 3, 4],
+		rfid: [163,52,18,8],
 		rfidLen: 4,
-		issueDate: [24, 1, 1],
-		expireDate: [25, 1, 1],
-		money: 200, // 200k
+		issueDate: [24, 1, 7],
+		expireDate: [25, 1, 8],
+		money: 200000, // 200k
 	};
 	clientSocket.emit("a2c", command);
 }
@@ -74,14 +74,14 @@ function sendCommandUpdateRFID() {
 // 	sendCommandOpenVan();
 // }, 5000);
 
-setInterval(() => {
-	sendCommandCancelOpenVan();
-}, 5000);
+// setInterval(() => {
+// 	sendCommandCancelOpenVan();
+// }, 5000);
 
 // setInterval(() => {
 // 	sendCommandPlayAudio();
 // }, 5000);
 
-// setInterval(() => {
-// 	sendCommandUpdateRFID();
-// }, 5000);
+setInterval(() => {
+	sendCommandUpdateRFID();
+}, 5000);
