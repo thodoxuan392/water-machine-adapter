@@ -8,6 +8,7 @@ import {
 	ProtocolId,
 } from "./interface";
 import { Logger } from "./logger";
+import { Subject, filter, firstValueFrom } from "rxjs";
 
 const logger = Logger.getLogger();
 
@@ -20,11 +21,14 @@ const clientSocket = io("http://localhost:3000", {
 	},
 });
 
+const subject = new Subject<BaseInterface>();
+
 clientSocket.on("connect", () => {
 	logger.info("Client connected");
 });
 clientSocket.on("c2a", (message) => {
-	logger.info(`Received ${JSON.stringify(message)}`);
+	// logger.info(`Received ${JSON.stringify(message)}`);
+	subject.next(message);
 });
 
 clientSocket.on("disconnect", () => {
@@ -35,7 +39,7 @@ function sendCommandOpenVan() {
 	const command: CommandOpenVan = {
 		machineId,
 		protocolId: ProtocolId.COMMAND_OPEN_VAN,
-		volume: 100, // 100cc
+		volume: 5000, // 100cc
 	};
 	clientSocket.emit("a2c", command);
 }
@@ -64,15 +68,32 @@ function sendCommandUpdateRFID() {
 		rfid: [163,52,18,8],
 		rfidLen: 4,
 		issueDate: [24, 1, 7],
-		expireDate: [25, 1, 8],
-		money: 200000, // 200k
+		isValid: true,
+		volume: 5000, // 200k
 	};
 	clientSocket.emit("a2c", command);
 }
 
-// setInterval(() => {
-// 	sendCommandOpenVan();
-// }, 5000);
+setTimeout(async () => {
+	logger.info("Send command cancel openVAN");
+	sendCommandCancelOpenVan();
+	await firstValueFrom(
+		subject.pipe(
+			filter((message) => message.protocolId === ProtocolId.COMMAND_CANCEL_OPEN_VAN_RESULT)
+		)
+	);
+	logger.info("Received result from cancel openVAN");
+	logger.info("Send command openVAN");
+	sendCommandOpenVan();
+	await firstValueFrom(
+		subject.pipe(
+			filter((message) => message.protocolId === ProtocolId.COMMAND_OPEN_VAN_RESULT)
+		)
+	);
+	logger.info("Received result from command openVAN");
+}, 2000);
+
+
 
 // setInterval(() => {
 // 	sendCommandCancelOpenVan();
@@ -82,6 +103,6 @@ function sendCommandUpdateRFID() {
 // 	sendCommandPlayAudio();
 // }, 5000);
 
-setInterval(() => {
-	sendCommandUpdateRFID();
-}, 5000);
+// setInterval(() => {
+// 	sendCommandUpdateRFID();
+// }, 5000);

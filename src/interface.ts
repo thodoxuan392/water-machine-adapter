@@ -16,9 +16,9 @@ export enum ProtocolId {
 	COMMAND_UPDATE_RFID_RESULT = 0x63,
 	STATUS = 0x81,
 	RFID_DETECTED = 0xc1,
-}
-
-export enum Result {
+  }
+  
+  export enum Result {
 	RESULT_SUCCESS = 0x00,
 	RESULT_FAILED = 0x01,
 	RESULT_RFID_ERROR_NOT_AVAILABLE = 0x70,
@@ -26,75 +26,76 @@ export enum Result {
 	RESULT_RFID_ERROR_ID_NOT_MATCHED = 0x72,
 	RESULT_RFID_ERROR_AUTHEN_FAILED = 0x73,
 	RESULT_RFID_ERROR_CANNOT_WRITE = 0x74,
-}
-
-export type BaseInterface = {
+  }
+  
+  export type BaseInterface = {
 	protocolId: ProtocolId;
 	machineId: number;
-};
-
-export type BaseResultInterface = BaseInterface & {
+  };
+  
+  export type BaseResultInterface = BaseInterface & {
 	result: Result;
-};
-
-export type Config = BaseInterface & {
+  };
+  
+  export type Config = BaseInterface & {
 	maxWaterFowAllowed: number;
-};
-
-export type ConfigAck = BaseInterface;
-
-export type ConfigResult = BaseResultInterface;
-
-export type CommandOpenVan = BaseInterface & {
+  };
+  
+  export type ConfigAck = BaseInterface;
+  
+  export type ConfigResult = BaseResultInterface;
+  
+  export type CommandOpenVan = BaseInterface & {
 	volume: number;
-};
-
-export type CommandOpenVanAck = BaseInterface;
-
-export type CommandOpenVanResult = BaseResultInterface;
-
-export type CommandCancelOpenVan = BaseInterface;
-
-export type CommandCancelOpenVanAck = BaseInterface;
-
-export type CommandCancelOpenVanResult = BaseResultInterface;
-
-export type CommandPlayAudio = BaseInterface & {
+  };
+  
+  export type CommandOpenVanAck = BaseInterface;
+  
+  export type CommandOpenVanResult = BaseResultInterface;
+  
+  export type CommandCancelOpenVan = BaseInterface;
+  
+  export type CommandCancelOpenVanAck = BaseInterface;
+  
+  export type CommandCancelOpenVanResult = BaseResultInterface;
+  
+  export type CommandPlayAudio = BaseInterface & {
 	audioIndex: number;
-};
-
-export type CommandPlayAudioAck = BaseInterface;
-
-export type CommandPlayAudioResult = BaseResultInterface;
-
-export type CommandUpdateRFID = BaseInterface & RFID;
-
-export type CommandUpdateRFIDAck = BaseInterface;
-
-export type CommandUpdateRFIDResult = BaseResultInterface;
-
-export type Status = BaseInterface & {
+  };
+  
+  export type CommandPlayAudioAck = BaseInterface;
+  
+  export type CommandPlayAudioResult = BaseResultInterface;
+  
+  export type CommandUpdateRFID = BaseInterface & RFID;
+  
+  export type CommandUpdateRFIDAck = BaseInterface;
+  
+  export type CommandUpdateRFIDResult = BaseResultInterface;
+  
+  export type Status = BaseInterface & {
 	placedPositionStatus: boolean;
 	solenoidSensorStatus: boolean;
 	waterFlowSensorStatus: number;
 	rfidPlacedStatus: boolean;
 	error: {
-		placedPositionError: boolean;
-		waterFlowSensorError: boolean;
-		rfidError: boolean;
-		soundError: boolean;
+	  placedPositionError: boolean;
+	  waterFlowSensorError: boolean;
+	  rfidError: boolean;
+	  soundError: boolean;
 	};
-};
-
-export type RFIDDetected = BaseInterface & RFID;
-
-export type RFID = {
+  };
+  
+  export type RFIDDetected = BaseInterface & RFID;
+  
+  export type RFID = {
 	rfidLen: number;
 	rfid: number[];
-	money: number;
+	isValid: boolean;
+	volume: number;
 	issueDate: number[];
-	expireDate: number[];
-};
-
-export const START_BYTE = 0x78;
-export const STOP_BYTE = 0x79;
+  };
+  
+  export const START_BYTE = 0x78;
+  export const STOP_BYTE = 0x79;
+  
